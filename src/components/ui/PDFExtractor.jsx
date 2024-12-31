@@ -42,8 +42,6 @@ const PDFExtractor = () => {
   const [error, setError] = useState('');
   const [processing, setProcessing] = useState(false);
   const [dragActive, setDragActive] = useState(false);
-  const [preview, setPreview] = useState(null);
-  const [pagePreview, setPagePreview] = useState(null);
   const [progress, setProgress] = useState(0);
   const [outputFileName, setOutputFileName] = useState('');
   const [isRenaming, setIsRenaming] = useState(false);
@@ -51,61 +49,9 @@ const PDFExtractor = () => {
 
   useEffect(() => {
     if (file) {
-      generatePreview();
       setOutputFileName(file.name.replace('.pdf', '_extracted.pdf'));
     }
   }, [file]);
-
-  useEffect(() => {
-    if (file && pageNum) {
-      generatePagePreview(parseInt(pageNum));
-    }
-  }, [pageNum]);
-
-  const generatePreview = async () => {
-    try {
-      const arrayBuffer = await file.arrayBuffer();
-      const pdf = await window.pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-      const page = await pdf.getPage(1);
-      const viewport = page.getViewport({ scale: 0.3 });
-      const canvas = document.createElement('canvas');
-      const context = canvas.getContext('2d');
-      canvas.height = viewport.height;
-      canvas.width = viewport.width;
-
-      await page.render({
-        canvasContext: context,
-        viewport: viewport
-      }).promise;
-
-      setPreview(canvas.toDataURL());
-    } catch (err) {
-      console.error('Preview generation failed:', err);
-    }
-  };
-
-  const generatePagePreview = async (pageNumber) => {
-    try {
-      const arrayBuffer = await file.arrayBuffer();
-      const pdf = await window.pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-      const page = await pdf.getPage(pageNumber);
-      const viewport = page.getViewport({ scale: 0.2 });
-      const canvas = document.createElement('canvas');
-      const context = canvas.getContext('2d');
-      canvas.height = viewport.height;
-      canvas.width = viewport.width;
-
-      await page.render({
-        canvasContext: context,
-        viewport: viewport
-      }).promise;
-
-      setPagePreview(canvas.toDataURL());
-    } catch (err) {
-      console.error('Page preview generation failed:', err);
-      setPagePreview(null);
-    }
-  };
 
   const handleFileChange = async (e) => {
     const selectedFile = e.target.files[0];
@@ -260,80 +206,66 @@ const PDFExtractor = () => {
       </CardHeader>
       <CardContent>
         <div className="space-y-6">
-          {/* Create a flex container for side-by-side layout */}
-          <div className="flex gap-6">
-            {/* Left side: Upload button */}
-            <div className="flex-1">
-              <div
-                onDragEnter={handleDrag}
-                onDragLeave={handleDrag}
-                onDragOver={handleDrag}
-                onDrop={handleDrop}
-                className={`
-                  relative rounded-lg border-2 border-dashed p-8 transition-all duration-200
-                  ${dragActive 
-                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' 
-                    : 'border-slate-300 dark:border-slate-700'
-                  }
-                  ${file 
-                    ? 'bg-green-50 dark:bg-green-900/20 border-green-500' 
-                    : 'hover:bg-slate-50 dark:hover:bg-slate-800/50'
-                  }
-                `}
-              >
-                {dragActive && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-blue-500/10 rounded-lg backdrop-blur-sm">
-                    <p className="text-xl text-blue-600 dark:text-blue-400 font-medium">
-                      Drop PDF here
-                    </p>
-                  </div>
-                )}
-                
-                <Button 
-                  variant={file ? "outline" : "default"}
-                  className={`
-                    w-full transition-all duration-200 hover:scale-[1.02] text-2xl font-semibold py-10
-                    border-2 ${file ? 'border-green-400' : 'border-slate-200'} 
-                    dark:border-slate-600 rounded-lg shadow-sm
-                    hover:border-sky-400 dark:hover:border-sky-400
-                    ${!file ? 'bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600' : ''}
-                    ${dragActive ? 'border-blue-500 scale-[1.02]' : ''}
-                  `}
-                  onClick={() => document.getElementById('file-upload').click()}
-                >
-                  {file ? (
-                    <div className="flex items-center text-lg">
-                      <FileText className="w-4 h-4 mr-2" />
-                      {file.name}
-                    </div>
-                  ) : (
-                    <>
-                      <Upload className="w-5 h-5 mr-3" />
-                      Choose or drop PDF here
-                    </>
-                  )}
-                </Button>
-                <input
-                  id="file-upload"
-                  type="file"
-                  accept=".pdf"
-                  className="hidden"
-                  onChange={handleFileChange}
-                />
-              </div>
-            </div>
-
-            {/* Right side: Preview */}
-            {preview && (
-              <div className="w-72 flex flex-col items-center justify-center p-4 rounded-lg border-2 border-dashed border-slate-200 dark:border-slate-700">
-                <p className="text-sm text-slate-500 dark:text-slate-400 mb-2">Preview</p>
-                <img 
-                  src={preview} 
-                  alt="PDF Preview" 
-                  className="max-w-full rounded border border-slate-200 shadow-sm"
-                />
+          <div
+            onDragEnter={handleDrag}
+            onDragLeave={handleDrag}
+            onDragOver={handleDrag}
+            onDrop={handleDrop}
+            className={`
+              relative rounded-lg border-2 border-dashed p-8 transition-all duration-200
+              ${dragActive 
+                ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' 
+                : 'border-slate-300 dark:border-slate-700'
+              }
+              ${file 
+                ? 'bg-green-50 dark:bg-green-900/20 border-green-500' 
+                : 'hover:bg-slate-50 dark:hover:bg-slate-800/50'
+              }
+            `}
+          >
+            {dragActive && (
+              <div className="absolute inset-0 flex items-center justify-center bg-blue-500/10 rounded-lg backdrop-blur-sm">
+                <p className="text-xl text-blue-600 dark:text-blue-400 font-medium">
+                  Drop PDF here
+                </p>
               </div>
             )}
+            
+            <Button 
+              variant={file ? "outline" : "default"}
+              className={`
+                w-full transition-all duration-200 hover:scale-[1.02] text-2xl font-semibold py-10
+                border-2 ${file ? 'border-green-400' : 'border-slate-200'} 
+                dark:border-slate-600 rounded-lg shadow-sm
+                hover:border-sky-400 dark:hover:border-sky-400
+                ${!file ? 'bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600' : ''}
+                ${dragActive ? 'border-blue-500 scale-[1.02]' : ''}
+              `}
+              onClick={() => document.getElementById('file-upload').click()}
+            >
+              {file ? (
+                <div className="flex flex-col items-center w-full gap-1">
+                  <FileText className="w-5 h-5 mb-1" />
+                  <div className="max-w-full px-4">
+                    <p className="truncate text-base">
+                      {file.name}
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <Upload className="w-5 h-5 mr-3" />
+                  Choose or drop PDF here
+                </>
+              )}
+            </Button>
+            <input
+              id="file-upload"
+              type="file"
+              accept=".pdf"
+              className="hidden"
+              onChange={handleFileChange}
+            />
           </div>
 
           {totalPages > 0 && (
@@ -370,17 +302,18 @@ const PDFExtractor = () => {
                   </div>
                 </div>
               ) : (
-                <div className="flex items-center justify-between">
-                  <label className="text-sm text-slate-600 dark:text-slate-400">
+                <div className="flex items-center">
+                  <label className="text-sm text-slate-600 dark:text-slate-400 whitespace-nowrap">
                     Name your extract:
                   </label>
-                  <div className="flex items-center space-x-2 flex-1 ml-2">
-                    <span className="text-sm text-slate-600 dark:text-slate-400 truncate">
+                  <div className="flex items-center flex-1 min-w-0 ml-2">
+                    <span className="text-sm text-slate-600 dark:text-slate-400 truncate block flex-1">
                       {outputFileName}
                     </span>
                     <Button
                       size="sm"
                       variant="ghost"
+                      className="ml-2 flex-shrink-0"
                       onClick={() => setIsRenaming(true)}
                     >
                       <Edit2 className="w-4 h-4" />
@@ -389,23 +322,12 @@ const PDFExtractor = () => {
                 </div>
               )}
 
-              <div className="relative">
-                <Input
-                  placeholder={`Enter page numbers (1-${totalPages}) e.g., 1,3,5-7`}
-                  value={pageNum}
-                  onChange={(e) => setPageNum(e.target.value)}
-                  className="transition-all duration-200 focus:scale-[1.02]"
-                />
-                {pagePreview && (
-                  <div className="absolute right-0 top-full mt-2 z-10">
-                    <img 
-                      src={pagePreview} 
-                      alt="Page Preview" 
-                      className="max-h-24 rounded border border-slate-200 shadow-sm bg-white"
-                    />
-                  </div>
-                )}
-              </div>
+              <Input
+                placeholder={`Enter page numbers (1-${totalPages}) e.g., 1,3,5-7`}
+                value={pageNum}
+                onChange={(e) => setPageNum(e.target.value)}
+                className="transition-all duration-200 focus:scale-[1.02]"
+              />
 
               <div className="flex space-x-2">
                 <Button
