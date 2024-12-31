@@ -1,8 +1,33 @@
-# React + Vite
+# PDF Page Extractor
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A sleek, user-friendly web application that allows users to extract specific pages from PDF documents. Built with React and modern web technologies, this tool makes PDF page extraction simple and efficient.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- 📄 Extract single or multiple pages from PDF documents
+- 📑 Support for page ranges (e.g., "1,3,5-7")
+- 🎯 Quick actions for first and last pages
+- 📝 Custom file naming for extracted pages
+- 🔄 Drag and drop file upload
+- 📱 Responsive design
+- 🌙 Dark mode support
+
+## Technologies Used
+
+- React
+- Vite
+- Tailwind CSS
+- shadcn/ui
+- PDF.js
+- jsPDF
+
+## Live Demo
+
+Try it out here: [PDF Page Extractor](https://pdf-extractor-six.vercel.app/)
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js (version 14 or higher)
+- npm
